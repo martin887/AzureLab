@@ -1,0 +1,226 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The prefix string to add to a generated string that is unique to the resourceGroup."
+      }
+    },
+    "DCName": {
+      "type": "string",
+      "defaultValue": "DC-1",
+      "metadata": {
+        "description": "Domain Controller Name"
+      }
+    },
+            "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The location of resources, such as templates and DSC modules, that the template depends on"
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Auto-generated token to access _artifactsLocation. Leave it blank unless you need to provide your own value."
+            },
+            "defaultValue": ""
+        }
+  },
+  "variables": {
+    "storageName": "[toLower( concat( parameters('storageNamePrefix'), uniqueString(resourceGroup().id) ) )]",
+    "dcpublicip": "[toLower(concat(parameters('DCName'),uniqueString(resourceGroup().id)))]",
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "name": "[variables('dcpublicip')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dcpublicip')]"
+        }
+      }
+    },
+    {
+      "name": "ExchangeLab-NSG",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2018-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "nsgRule1",
+            "properties": {
+              "description": "description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExchangeLab-VirtualNetwork",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'ExchangeLab-NSG')]"
+      ],
+      "tags": {
+        "displayName": "ExchangeLab-VirtualNetwork"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "ExchangeLab-VirtualNetwork-Subnet",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'ExchangeLab-NSG')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DC1-NetworkInterface",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('dcpublicip'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'ExchangeLab-VirtualNetwork')]"
+      ],
+      "tags": {
+        "displayName": "Exchange-Lab Network Interface"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+            "privateIPAddress":"10.0.0.5",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('dcpublicip'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'ExchangeLab-VirtualNetwork', 'ExchangeLab-VirtualNetwork-Subnet')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DC-1",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'DC1-NetworkInterface')]"
+      ],
+      "tags": {
+        "displayName": "DC-1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "osProfile": {
+          "computerName": "DC-1",
+          "adminUsername": "martin.cook",
+          "adminPassword": "USDOIMlyy0241337%%"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "windowsVM1OSDisk",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'DC1-NetworkInterface')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "DC-1/dscScript1",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "DC-1/dscScript1"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', 'DC-1')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/PromoteDC.zip', parameters('_artifactsLocationSasToken')))]",
+          "sasToken": "artifactsLocationSasToken",
+          "configurationFunction": "PromoteDC.ps1\\MyWebServerCfg"
+        },
+        "protectedSettings": {
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageName')]"
+    },
+    "dcpublicip": {
+      "type": "string",
+      "value": "[variables('dcpublicip')]"
+    }
+  }
+}
