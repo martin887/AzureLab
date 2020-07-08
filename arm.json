@@ -28,7 +28,20 @@
                 "description": "Auto-generated token to access _artifactsLocation. Leave it blank unless you need to provide your own value."
             },
             "defaultValue": ""
-        }
+        },
+    "adminusername": {
+      "type": "string",
+      "defaultValue": "azurelabuser",
+      "metadata": {
+        "description": "Administrator User name"
+      }
+    },
+    "adminpassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specify password for admin account"
+      }
+    }
   },
   "variables": {
     "storageName": "[toLower( concat( parameters('storageNamePrefix'), uniqueString(resourceGroup().id) ) )]",
@@ -162,8 +175,8 @@
         },
         "osProfile": {
           "computerName": "DC-1",
-          "adminUsername": "martin.cook",
-          "adminPassword": "USDOIMlyy0241337%%"
+          "adminUsername": "[parameters('adminusername')]",
+          "adminPassword": "[parameters('adminpassword')]" 
         },
         "storageProfile": {
           "imageReference": {
