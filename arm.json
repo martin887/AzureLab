@@ -217,7 +217,7 @@
         "typeHandlerVersion": "2.9",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/PromoteDC.zip', parameters('_artifactsLocationSasToken')))]",
+          "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/PromoteDC.zip'))]",
           "sasToken": "artifactsLocationSasToken",
           "configurationFunction": "PromoteDC.ps1\\MyWebServerCfg"
         },
