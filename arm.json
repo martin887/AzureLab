@@ -201,12 +201,12 @@
       }
     },
     {
-      "name": "DC-1/dscScript1",
+      "name": "DC-1/PromoteDC",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-07-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "displayName": "DC-1/dscScript1"
+        "displayName": "DC-1/PromoteDC"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'DC-1')]"
@@ -218,9 +218,18 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/PromoteDC.ps1.zip', parameters('_artifactsLocationSasToken')))]",          
-          "configurationFunction": "PromoteDC.ps1\\MyWebServerCfg"
+          "configurationFunction": "PromoteDC.ps1\\ADDomain_NewForest_Config",
+          "Name": "Credential",
+          "Value": {
+            "UserName": "[parameters('adminusername')]",
+            "Password": "PrivateSettingsRef:AdminPassword"
+          },
+          "TypeName": "System.Management.Automation.PSCredential"
         },
         "protectedSettings": {
+          "Items":{
+            "AdminPassword": "[parameters('adminpassword')]"
+          }
         }
       }
     }
