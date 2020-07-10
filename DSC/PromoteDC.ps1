@@ -1,21 +1,36 @@
-Configuration MyWebServerCfg {
- 
-    Import-DscResource -ModuleName PsDesiredStateConfiguration
- 
-    Node 'localhost' {
- 
-        # The first resource block ensures that the Web-Server (IIS) feature is enabled.
-        WindowsFeature IIS {
-            Ensure = "Present"
-            Name   = "Web-Server"
+﻿Configuration ADDomain_NewForest_Config
+{
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.Management.Automation.PSCredential]
+        $Credential
+    )
+
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName ActiveDirectoryDsc
+
+    node 'localhost'
+    {
+        WindowsFeature 'ADDS'
+        {
+            Name   = 'AD-Domain-Services'
+            Ensure = 'Present'
         }
- 
-        # The second resource block ensures that the Web-Mgmt-Tools feature is enabled.
-        WindowsFeature IIS-Tools {
-            Ensure    = "Present"
-            Name      = "Web-Mgmt-Tools"
-            DependsOn = "[WindowsFeature]IIS"
+
+        WindowsFeature 'RSAT'
+        {
+            Name   = 'RSAT-AD-PowerShell'
+            Ensure = 'Present'
         }
- 
+
+        ADDomain 'contoso.com'
+        {
+            DomainName                    = 'contoso.com'
+            Credential                    = $Credential
+            SafemodeAdministratorPassword = $Credential
+            ForestMode                    = 'WinThreshold'
+        }
     }
 }
