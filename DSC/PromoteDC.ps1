@@ -2,6 +2,10 @@
 {
     param
     (
+
+        [Parameter(Mandatory)]
+        [String]$DomainName,
+
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]
@@ -13,6 +17,10 @@
 
     node 'localhost'
     {
+        LocalConfigurationManager 
+        {
+            RebootNodeIfNeeded = $true
+        }
         WindowsFeature 'ADDS'
         {
             Name   = 'AD-Domain-Services'
@@ -25,12 +33,13 @@
             Ensure = 'Present'
         }
 
-        ADDomain 'contoso.com'
+        ADDomain 'domain'
         {
-            DomainName                    = 'contoso.com'
+            DomainName                    = $DomainName
             Credential                    = $Credential
             SafemodeAdministratorPassword = $Credential
             ForestMode                    = 'WinThreshold'
         }
+
     }
 }
