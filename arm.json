@@ -41,6 +41,12 @@
       "metadata": {
         "description": "Specify password for admin account"
       }
+    },
+    "DomainName": {
+      "type": "string",
+      "metadata": {
+        "description": "FQDN of the Active Directory Domain"
+      }
     }
   },
   "variables": {
@@ -220,6 +226,7 @@
           "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/PromoteDC.ps1.zip', parameters('_artifactsLocationSasToken')))]",          
           "configurationFunction": "PromoteDC.ps1\\ADDomain_NewForest_Config",
           "Properties": {
+            "DomainName": "[parameters('domainName')]",
             "Credential": {
               "UserName": "[parameters('adminusername')]",
               "Password": "PrivateSettingsRef:AdminPassword"
