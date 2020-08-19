@@ -41,5 +41,12 @@
             ForestMode                    = 'WinThreshold'
         }
 
+        WindowsFeature ADDSTools
+        {
+            Ensure = "Present"
+            Name = "RSAT-ADDS-Tools"
+            DependsOn = "[WindowsFeature]ADDS"
+        }
+
     }
 }
