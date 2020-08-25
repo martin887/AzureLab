@@ -249,12 +249,12 @@
       }
     },
     {
-      "name": "DC-1/PromoteDC",
+      "name": "PromoteDC",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-07-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "displayName": "DC-1/PromoteDC"
+        "displayName": "PromoteDC"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'DC-1')]"
@@ -288,7 +288,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "dependsOn":[
-        "DC-1/PromoteDC"
+        "PromoteDC"
     ],
       "properties": {
         "mode": "Incremental",
