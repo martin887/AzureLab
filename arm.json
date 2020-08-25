@@ -254,7 +254,7 @@
       "apiVersion": "2019-07-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "displayName": "DCPROMO"
+        "displayName": "DC-1/DCPROMO"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'DC-1')]"
