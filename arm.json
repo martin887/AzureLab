@@ -249,7 +249,7 @@
       }
     },
     {
-      "name": "DCPROMO",
+      "name": "DC-1/DCPROMO",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-07-01",
       "location": "[resourceGroup().location]",
@@ -288,7 +288,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "dependsOn":[
-        "[resourceId('extensions', 'DCPROMO')]"
+        "[resourceId('extensions', 'DC-1/DCPROMO')]"
     ],
       "properties": {
         "mode": "Incremental",
