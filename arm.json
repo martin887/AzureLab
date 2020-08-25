@@ -288,7 +288,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "dependsOn":[
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'PromoteDC')]"
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'DC-1/PromoteDC')]"
     ],
       "properties": {
         "mode": "Incremental",
