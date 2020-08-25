@@ -47,6 +47,48 @@
       "metadata": {
         "description": "FQDN of the Active Directory Domain"
       }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "labvnet",
+      "metadata": {
+        "description": "Virtual network name"
+      }
+    },
+    "virtualNetworkAddressRange": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Virtual network address range"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "labsubnet",
+      "metadata": {
+        "description": "Subnet name"
+      }
+    },
+    "subnetRange": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "subnet ip range"
+      }
+    },
+    "privateIPAddress": {
+      "type": "string",
+      "defaultValue": "10.0.0.4",
+      "metadata": {
+        "description": "Private ip address"
+      }
     }
   },
   "variables": {
@@ -104,7 +146,7 @@
       }
     },
     {
-      "name": "ExchangeLab-VirtualNetwork",
+      "name": "[parameters('virtualNetworkName')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
@@ -112,19 +154,19 @@
         "[resourceId('Microsoft.Network/networkSecurityGroups', 'ExchangeLab-NSG')]"
       ],
       "tags": {
-        "displayName": "ExchangeLab-VirtualNetwork"
+        "displayName": "[parameters('virtualNetworkName')]"
       },
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "10.0.0.0/16"
+            "[parameters('virtualNetworkAddressRange')]"
           ]
         },
         "subnets": [
           {
-            "name": "ExchangeLab-VirtualNetwork-Subnet",
+            "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "10.0.0.0/24",
+              "addressPrefix": "[parameters('subnetRange')]",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'ExchangeLab-NSG')]"
               }
@@ -140,7 +182,7 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('dcpublicip'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'ExchangeLab-VirtualNetwork')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ],
       "tags": {
         "displayName": "Exchange-Lab Network Interface"
@@ -151,12 +193,12 @@
             "name": "ipConfig1",
             "properties": {
               "privateIPAllocationMethod": "Static",
-            "privateIPAddress":"10.0.0.5",
+            "privateIPAddress":"[parameters('privateIPAddress')]",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('dcpublicip'))]"
               },
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'ExchangeLab-VirtualNetwork', 'ExchangeLab-VirtualNetwork-Subnet')]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
               }
             }
           }
@@ -237,6 +279,43 @@
         "protectedSettings": {
           "Items":{
             "AdminPassword": "[parameters('adminpassword')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "updatevnetdns",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "dependsOn":[
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('DCName'),'/extensions/DC-1/PromoteDC')]"
+    ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('artifactsLocation', '/linkedTemplates/linkedTemplate.json', 'artifactsLocationSasToken')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "virtualNetworkAddressRange": {
+            "value": "[parameters('virtualNetworkAddressRange')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "subnetRange": {
+            "value": "[parameters('subnetRange')]"
+          },
+          "DNSServerAddress": {
+            "value": [
+              "[parameters('privateIPAddress')]"
+            ]
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         }
       }
