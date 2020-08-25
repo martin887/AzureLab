@@ -249,12 +249,12 @@
       }
     },
     {
-      "name": "DC-1/PromoteDC",
+      "name": "DCPROMO",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-07-01",
       "location": "[resourceGroup().location]",
       "tags": {
-        "displayName": "PromoteDC"
+        "displayName": "DCPROMO"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'DC-1')]"
@@ -288,7 +288,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "dependsOn":[
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'DC-1/PromoteDC')]"
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', 'DCPROMO')]"
     ],
       "properties": {
         "mode": "Incremental",
