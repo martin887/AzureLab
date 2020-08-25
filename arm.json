@@ -287,9 +287,6 @@
       "name": "updatevnetdns",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "dependsOn":[
-        "[reference('DC-1/DCPROMO')]"
-    ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
