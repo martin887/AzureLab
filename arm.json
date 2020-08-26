@@ -292,7 +292,7 @@
     "type": "Microsoft.Resources/deployments",
     "apiVersion": "2019-10-01",
     "dependsOn": [
-      "DC-1/DCPROMO"
+      "DCPROMO"
     ],
     "properties": {
       "mode": "Incremental",
