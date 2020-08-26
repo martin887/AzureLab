@@ -94,7 +94,8 @@
   "variables": {
     "storageName": "[toLower( concat( parameters('storageNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "dcpublicip": "[toLower(concat(parameters('DCName'),uniqueString(resourceGroup().id)))]",
-    "location": "[resourceGroup().location]"
+    "location": "[resourceGroup().location]",
+    "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]"
   },
   "resources": [
     {
@@ -290,7 +291,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]",
+          "uri": "[variables('linkedtemplateuri')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
