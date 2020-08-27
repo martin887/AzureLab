@@ -111,7 +111,7 @@
     "aadcpublicip": "[toLower(concat(parameters('AADCName'),uniqueString(resourceGroup().id)))]",
     "location": "[resourceGroup().location]",
     "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]",
-    "exchmbxpublicip": "[toLower(concat(parameters('EXCHName'),uniqueString(resourceGroup().id)))]"
+    "exchpublicip": "[toLower(concat(parameters('EXCHName'),uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
@@ -454,7 +454,7 @@
       }
     },
     {
-      "name": "[variables('exchmbxpublicip')]",
+      "name": "[variables('exchpublicip')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
@@ -464,7 +464,7 @@
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[variables('exchmbxpublicip')]"
+          "domainNameLabel": "[variables('exchpublicip')]"
         }
       }
     },
@@ -498,7 +498,7 @@
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchmbxpublicip'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchpublicip'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ],
       "tags": {
@@ -512,7 +512,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress":"10.0.0.7",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchmbxpublicip'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchpublicip'))]"
               },
               "subnet": {
                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
@@ -582,7 +582,7 @@
     },
     "exchpublicip": {
       "type": "string",
-      "value": "[variables('exchmbxpublicip')]"
+      "value": "[variables('exchpublicip')]"
     }
   }
 }
