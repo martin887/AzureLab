@@ -464,7 +464,7 @@
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[toLower('EXCHMBX1')]"
+          "domainNameLabel": "[variables('exchmbxpublicip')]"
         }
       }
     },
