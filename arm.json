@@ -454,7 +454,7 @@
       }
     },
     {
-      "name": "EXCHMBX1-PublicIP",
+      "name": "[variables('exchmbxpublicip')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
