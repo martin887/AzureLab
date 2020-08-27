@@ -246,7 +246,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "AADCOSDisk",
+            "name": "DC1OSDisk",
             "caching": "ReadWrite",
             "createOption": "FromImage"
           }
