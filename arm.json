@@ -89,11 +89,19 @@
       "metadata": {
         "description": "Private ip address"
       }
+    },
+    "AADCName": {
+      "type": "string",
+      "defaultValue": "AADC",
+      "metadata": {
+        "description": "AAD Connect Server Name"
+      }
     }
   },
   "variables": {
     "storageName": "[toLower( concat( parameters('storageNamePrefix'), uniqueString(resourceGroup().id) ) )]",
     "dcpublicip": "[toLower(concat(parameters('DCName'),uniqueString(resourceGroup().id)))]",
+    "aadcpublicip": "[toLower(concat(parameters('AADCName'),uniqueString(resourceGroup().id)))]",
     "location": "[resourceGroup().location]",
     "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]"
   },
@@ -123,7 +131,7 @@
       }
     },
     {
-      "name": "Lab-NSG",
+      "name": "DC-1-NSG",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2018-08-01",
       "location": "[resourceGroup().location]",
@@ -152,7 +160,7 @@
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'Lab-NSG')]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'DC-1-NSG')]"
       ],
       "tags": {
         "displayName": "[parameters('virtualNetworkName')]"
@@ -172,7 +180,7 @@
             "properties": {
               "addressPrefix": "[parameters('subnetRange')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'Lab-NSG')]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'DC-1-NSG')]"
               }
             }
           }
@@ -238,7 +246,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "windowsVM1OSDisk",
+            "name": "AADCOSDisk",
             "caching": "ReadWrite",
             "createOption": "FromImage"
           }
@@ -323,7 +331,120 @@
         }
       }
     }
-  }
+  },
+    {
+      "name": "AADC-PublicIP",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('aadcpublicip')]"
+        }
+      }
+    },
+    {
+      "name": "AADC-nsg",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2018-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "nsgRule1",
+            "properties": {
+              "description": "description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AADC-NetworkInterface",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'AADC-PublicIP')]",
+       "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+      ],
+      "tags": {
+        "displayName": "AADC Network Interface"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+            "privateIPAddress":"10.0.0.6",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'AADC-PublicIP')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AADC",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'AADC-NetworkInterface')]"
+      ],
+      "tags": {
+        "displayName": "AADC"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "osProfile": {
+          "computerName": "AADC",
+          "adminUsername": "[parameters('adminusername')]",
+          "adminPassword": "[parameters('adminpassword')]" 
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "AADCOSDisk",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'AADC-NetworkInterface')]"
+            }
+          ]
+        }
+        
+      }
+    }
   ],
   "outputs": {
     "storageAccountName": {
@@ -333,6 +454,10 @@
     "dcpublicip": {
       "type": "string",
       "value": "[variables('dcpublicip')]"
+    },
+    "aadcpublicip": {
+      "type": "string",
+      "value": "[variables('aadcpublicip')]"
     }
   }
 }
