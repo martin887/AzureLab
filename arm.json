@@ -385,7 +385,7 @@
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', 'AADC-PublicIP')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('aadcpublicip'))]",
        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ],
       "tags": {
@@ -399,7 +399,7 @@
               "privateIPAllocationMethod": "Static",
             "privateIPAddress":"10.0.0.6",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'AADC-PublicIP')]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('aadcpublicip'))]"
               },
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
@@ -498,7 +498,7 @@
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', 'EXCHMBX1-PublicIP')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchmbxpublicip'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ],
       "tags": {
@@ -512,7 +512,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress":"10.0.0.7",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'EXCHMBX1-PublicIP')]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchmbxpublicip'))]"
               },
               "subnet": {
                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
