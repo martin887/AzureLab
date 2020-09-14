@@ -103,6 +103,20 @@
       "metadata": {
         "description": "Exchange Mailbox Server Name"
       }
+    },
+    "SFBName": {
+      "type": "string",
+      "defaultValue": "SFBFE1",
+      "metadata": {
+        "description": "Skype for Business Front End Name"
+      }
+    },
+    "WorkstationName": {
+      "type": "string",
+      "defaultValue": "Workstation1",
+      "metadata": {
+        "description": "Default name of workstation"
+      }
     }
   },
   "variables": {
@@ -111,7 +125,9 @@
     "aadcpublicip": "[toLower(concat(parameters('AADCName'),uniqueString(resourceGroup().id)))]",
     "location": "[resourceGroup().location]",
     "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]",
-    "exchpublicip": "[toLower(concat(parameters('EXCHName'),uniqueString(resourceGroup().id)))]"
+    "exchpublicip": "[toLower(concat(parameters('EXCHName'),uniqueString(resourceGroup().id)))]",
+    "sfbpublicip": "[toLower(concat(parameters('SFBName'),uniqueString(resourceGroup().id)))]",
+    "workstationpublicip": "[toLower(concat(parameters('WorkstationName'),uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
@@ -565,6 +581,118 @@
         
         }
       }
+    },
+    {
+      "name": "[variables('sfbpublicip')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "SFB-PublicIP"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('sfbpublicip')]"
+        }
+      }
+    },
+    {
+      "name": "SFB-nsg",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2018-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "nsgRule1",
+            "properties": {
+              "description": "description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+        {
+      "name": "SFB-NetworkInterface",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('sfbpublicip'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+      ],
+      "tags": {
+        "displayName": "SFB Network Interface"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress":"10.0.0.8",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sfbpublicip'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SFBFE1",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', 'SFB-NetworkInterface')]"
+      ],
+      "tags": {
+        "displayName": "SFBFE1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_D4s_v3"
+        },
+        "osProfile": {
+          "computerName": "SFBFE1",
+          "adminUsername": "[parameters('adminusername')]",
+          "adminPassword": "[parameters('adminpassword')]" 
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "SFBFE1OSDisk",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'SFB-NetworkInterface')]"
+            }
+          ]
+        }
+      }
     }
   ],
   "outputs": {
@@ -583,6 +711,14 @@
     "exchpublicip": {
       "type": "string",
       "value": "[variables('exchpublicip')]"
+    },
+    "sfbpublicip": {
+      "type": "string",
+      "value": "[variables('sfbpublicip')]"
+    },
+    "workstationpublicip": {
+      "type": "string",
+      "value": "[variables('workstationpublicip')]"
     }
   }
 }
