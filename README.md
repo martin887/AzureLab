@@ -9,7 +9,7 @@ This template allows you to deploy several virtual machines and automates the fo
 
 
 
-[Install and configure Azure PowerShell](https://azure.microsoft.com/en-us/documentation/articles/powershell-install-configure/)
+
 
 
 
@@ -25,3 +25,7 @@ If you're new to template deployment, see:
 
 - [Azure Resource Manager documentation](https://docs.microsoft.com/azure/azure-resource-manager/)
 - [Quickstart: Create a Windows virtual machine using an ARM template](https://docs.microsoft.com/azure/virtual-machines/windows/quick-create-template)
+
+If you're new to Azure PowerShell, see:
+
+- [Install and configure Azure PowerShell](https://azure.microsoft.com/en-us/documentation/articles/powershell-install-configure/)
