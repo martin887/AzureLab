@@ -12,11 +12,13 @@ adminUsername	Username for the Virtual Machine.
 adminPassword	Password for the Virtual Machine.
 storageNamePrefix	A prefix string that is added to a generated string unique to the resource group.
 
-Use the template
+# Use the template
 PowerShell
 New-AzResourceGroup -Name <resource-group-name> -Location <resource-group-location> #use this command when you need to create a new resource group for your deployment
 New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateUri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/azuredeploy.json
-Install and configure Azure PowerShell
+
+
+[Install and configure Azure PowerShell](https://azure.microsoft.com/en-us/documentation/articles/powershell-install-configure/)
 
 
 
