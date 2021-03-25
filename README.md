@@ -6,16 +6,10 @@ This template allows you to deploy several virtual machines and automates the fo
 - Provision several windows virtual machines to support Active Directory, Exchange Server, Azure AD Connect, and a Windows 10 Client.
 - Automatically promote the domain controller with the specified Active Directory Forest Fully Qualified Domain Name.
 
-Parameters
-PARAMETER NAME	DESCRIPTION
-adminUsername	Username for the Virtual Machine.
-adminPassword	Password for the Virtual Machine.
-storageNamePrefix	A prefix string that is added to a generated string unique to the resource group.
-
 # Use the template
 PowerShell
 New-AzResourceGroup -Name <resource-group-name> -Location <resource-group-location> #use this command when you need to create a new resource group for your deployment
-New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateUri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/azuredeploy.json
+New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateUri https://raw.githubusercontent.com/martin887/AzureLab/master/arm.json
 
 
 [Install and configure Azure PowerShell](https://azure.microsoft.com/en-us/documentation/articles/powershell-install-configure/)
