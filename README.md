@@ -7,8 +7,13 @@ This template allows you to deploy several virtual machines and automates the fo
 - Automatically promote the domain controller with the specified Active Directory Forest Fully Qualified Domain Name.
 
 
+## Use the template
+### PowerShell
 
-
+```
+New-AzResourceGroup -Name <resource-group-name> -Location <resource-group-location> #use this command when you need to create a new resource group for your deployment
+New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateUri https://raw.githubusercontent.com/martin887/AzureLab/master/arm.json
+```
 
 
 
