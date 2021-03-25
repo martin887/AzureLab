@@ -15,7 +15,7 @@ New-AzResourceGroup -Name <resource-group-name> -Location <resource-group-locati
 New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateUri https://raw.githubusercontent.com/martin887/AzureLab/master/arm.json
 ```
 
->This Azure Resource Manager template was created by a member of the community and not by Microsoft. Each Resource Manager template is licensed to you under a license agreement >by its owner, not Microsoft. Microsoft is not responsible for Resource Manager templates provided and licensed by community members and does not screen for security, >compatibility, or performance. Community Resource Manager templates are not supported under any Microsoft support program or service, and are made available AS IS without > >warranty of any kind.
+>This Azure Resource Manager template was created by a member of the community and not by Microsoft. Each Resource Manager template is licensed to you under a license agreement by its owner, not Microsoft. Microsoft is not responsible for Resource Manager templates provided and licensed by community members and does not screen for security, compatibility, or performance. Community Resource Manager templates are not supported under any Microsoft support program or service, and are made available AS IS without warranty of any kind.
 
 
 If you're new to Azure virtual machines, see:
