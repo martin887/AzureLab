@@ -1,11 +1,11 @@
-#Depkoy
 
-# Very simple deployment of a Windows VM
+# A very basic Azure Lab!
 
+This template allows you to deploy several virtual machines and automates the following:
 
-[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F101-vm-simple-windows%2Fazuredeploy.json)
+- Provision several windows virtual machines to support Active Directory, Exchange Server, Azure AD Connect, and a Windows 10 Client.
+- Automatically promote the domain controller with the specified Active Directory Forest Fully Qualified Domain Name.
 
-This template allows you to deploy a simple Windows VM using a few different options for the Windows version, using the latest patched version. This will deploy a A2 size VM in the resource group location and return the fully qualified domain name of the VM.
 
 If you're new to Azure virtual machines, see:
 
