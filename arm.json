@@ -629,7 +629,8 @@
           {
             "name": "ipConfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress":"10.0.0.8",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('workstationpublicip'))]"
               },
