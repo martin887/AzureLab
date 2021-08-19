@@ -3,7 +3,7 @@
 
 This template allows you to deploy several virtual machines and automates the following:
 
-- Provision several windows virtual machines to support Active Directory, Exchange Server, Azure AD Connect, and a Windows 10 Client.
+- Provision several windows virtual machines to support Active Directory and Azure AD Connect.
 - Automatically promote the domain controller with the specified Active Directory Forest Fully Qualified Domain Name.
 
 
