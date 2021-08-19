@@ -95,20 +95,6 @@
       "metadata": {
         "description": "AAD Connect Server Name"
       }
-    },
-    "EXCHName": {
-      "type": "string",
-      "defaultValue": "EXCHMB1",
-      "metadata": {
-        "description": "Exchange Mailbox Server Name"
-      }
-    },
-    "WorkstationName": {
-      "type": "string",
-      "defaultValue": "Workstation1",
-      "metadata": {
-        "description": "Default name of workstation"
-      }
     }
   },
   "variables": {
@@ -116,9 +102,7 @@
     "dcpublicip": "[toLower(concat(parameters('DCName'),uniqueString(resourceGroup().id)))]",
     "aadcpublicip": "[toLower(concat(parameters('AADCName'),uniqueString(resourceGroup().id)))]",
     "location": "[resourceGroup().location]",
-    "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]",
-    "exchpublicip": "[toLower(concat(parameters('EXCHName'),uniqueString(resourceGroup().id)))]",
-    "workstationpublicip": "[toLower(concat(parameters('WorkstationName'),uniqueString(resourceGroup().id)))]"
+    "linkedtemplateuri": "[uri(parameters('_artifactsLocation'), concat('linkedTemplates/linkedTemplate.json', parameters('_artifactsLocationSasToken')))]"
   },
   "resources": [
     {
@@ -459,231 +443,6 @@
         }
         
       }
-    },
-    {
-      "name": "[variables('exchpublicip')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-11-01",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "EXCHMBX1-PublicIPAddress"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('exchpublicip')]"
-        }
-      }
-    },
-    {
-      "name": "EXCHMBX1-nsg",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2018-08-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "nsgRule1",
-            "properties": {
-              "description": "description",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "EXCHMBX1-NetworkInterface",
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2019-11-01",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchpublicip'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
-      ],
-      "tags": {
-        "displayName": "EXCHMBX1 Network Interface"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipConfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress":"10.0.0.7",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('exchpublicip'))]"
-              },
-              "subnet": {
-                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "EXCHMBX1",
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2019-07-01",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', 'EXCHMBX1-NetworkInterface')]"
-      ],
-      "tags": {
-        "displayName": "EXCHMBX1"
-      },
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "Standard_D4s_v3"
-        },
-        "osProfile": {
-          "computerName": "EXCHMBX1",
-          "adminUsername": "[parameters('adminusername')]",
-          "adminPassword": "[parameters('adminpassword')]" 
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "2016-Datacenter",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "EXCHMBX1OSDisk",
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'EXCHMBX1-NetworkInterface')]"
-            }
-          ]
-        
-        }
-      }
-    },
-    {
-      "name": "[variables('workstationpublicip')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-11-01",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "Workstation-PublicIP"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('workstationpublicip')]"
-        }
-      }
-    },
-    {
-      "name": "Workstation-nsg",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2018-08-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "nsgRule1",
-            "properties": {
-              "description": "description",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Workstation-NetworkInterface",
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2019-11-01",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('workstationpublicip'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
-      ],
-      "tags": {
-        "displayName": "Workstation Network Interface"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipConfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress":"10.0.0.8",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('workstationpublicip'))]"
-              },
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName') ,parameters('subnetName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Workstation",
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2019-07-01",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', 'Workstation-NetworkInterface')]"
-      ],
-      "tags": {
-        "displayName": "Workstation"
-      },
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "Standard_DS1_v2"
-        },
-        "osProfile": {
-          "computerName": "WORKSTATION",
-          "adminUsername": "[parameters('adminusername')]",
-          "adminPassword": "[parameters('adminpassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "MicrosoftWindowsDesktop",
-            "offer": "Windows-10",
-            "sku": "RS5-Pro",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "WorkstationOSDisk",
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Workstation-NetworkInterface')]"
-            }
-          ]
-        }
-      }
     }
   ],
   "outputs": {
@@ -698,14 +457,6 @@
     "aadcpublicip": {
       "type": "string",
       "value": "[variables('aadcpublicip')]"
-    },
-    "exchpublicip": {
-      "type": "string",
-      "value": "[variables('exchpublicip')]"
-    },
-    "workstationpublicip": {
-      "type": "string",
-      "value": "[variables('workstationpublicip')]"
     }
   }
 }
